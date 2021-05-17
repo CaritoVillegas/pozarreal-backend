@@ -88,13 +88,6 @@ public class StreetServiceImplTests {
         Mockito.when(streetRepository.findById(streetId)).thenReturn(Optional.of(street));
         Mockito.when(representativeRepository.findRepresentativeByStreet(streetId)).thenReturn(representative);
 
-        List<House> list1 = new LinkedList<>();
-        list1.add(new House());
-        list1.add(new House());
-        list1.add(new House());
-
-        Mockito.when(housesRepository.findAllByStreet(streetId)).thenReturn(list1);
-
         //When
         StreetInfo streetInfo = info.getStreetInfo(streetId);
 
@@ -103,7 +96,7 @@ public class StreetServiceImplTests {
         Assertions.assertEquals("010216", streetInfo.getId());
         Assertions.assertEquals("callePosho", streetInfo.getRepresentative().getName());
         Assertions.assertEquals("162001", streetInfo.getRepresentative().getId());
-        Assertions.assertEquals(3, streetInfo.getHouses().size());
+
 
     }
 
