@@ -7,6 +7,9 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.uresti.pozarreal.dto.StreetInfo;
+import org.uresti.pozarreal.model.House;
+import org.uresti.pozarreal.model.Representative;
 import org.uresti.pozarreal.model.Street;
 import org.uresti.pozarreal.repository.HousesRepository;
 import org.uresti.pozarreal.repository.RepresentativeRepository;
@@ -17,7 +20,7 @@ import java.util.*;
 public class StreetServiceImplTests {
 
     @Test
-    public void givenAnEmptyStreetList_whenGetStreets_thenEmptyListIsReturned(){
+    public void givenAnEmptyStreetList_whenGetStreets_thenEmptyListIsReturned() {
         // Given:
         StreetRepository streetRepository = Mockito.mock(StreetRepository.class);
         RepresentativeRepository representativeRepository = null;
@@ -36,7 +39,7 @@ public class StreetServiceImplTests {
     }
 
     @Test
-    public void givenAnStreetListWithTwoElements_whenGetStreets_thenListWithTwoElementsIsReturned(){
+    public void givenAnStreetListWithTwoElements_whenGetStreets_thenListWithTwoElementsIsReturned() {
         // Given:
         StreetRepository streetRepository = Mockito.mock(StreetRepository.class);
         RepresentativeRepository representativeRepository = null;
@@ -44,7 +47,6 @@ public class StreetServiceImplTests {
         StreetServiceImpl streetService = new StreetServiceImpl(streetRepository, representativeRepository, housesRepository);
 
         List<Street> lista = new LinkedList<>();
-
         Street street1 = new Street();
         street1.setId("id1");
         street1.setName("Street 1");
@@ -54,9 +56,7 @@ public class StreetServiceImplTests {
         street2.setId("id2");
         street2.setName("Street 2");
         lista.add(street2);
-
         Mockito.when(streetRepository.findAll()).thenReturn(lista);
-
 
         // When:
         List<Street> streets = streetService.getStreets();
@@ -67,6 +67,44 @@ public class StreetServiceImplTests {
         Assertions.assertEquals("Street 1", streets.get(0).getName());
         Assertions.assertEquals("id2", streets.get(1).getId());
         Assertions.assertEquals("Street 2", streets.get(1).getName());
+    }
+
+    @Test
+    public void getStreetInfoTest() {
+        //Given
+        StreetRepository streetRepository = Mockito.mock(StreetRepository.class);
+        RepresentativeRepository representativeRepository =  Mockito.mock(RepresentativeRepository.class);
+
+        HousesRepository housesRepository = Mockito.mock(HousesRepository.class);
+        Representative representative = new  Representative();
+        StreetServiceImpl info = new StreetServiceImpl(streetRepository, representativeRepository, housesRepository);
+        String streetId = "010216";
+
+        Street street = new Street();
+        street.setName("TestStreet 1");
+        representative.setName("callePosho");
+        representative.setId("162001");
+
+        Mockito.when(streetRepository.findById(streetId)).thenReturn(Optional.of(street));
+        Mockito.when(representativeRepository.findRepresentativeByStreet(streetId)).thenReturn(representative);
+
+        List<House> list1 = new LinkedList<>();
+        list1.add(new House());
+        list1.add(new House());
+        list1.add(new House());
+
+        Mockito.when(housesRepository.findAllByStreet(streetId)).thenReturn(list1);
+
+        //When
+        StreetInfo streetInfo = info.getStreetInfo(streetId);
+
+        //Then
+        Assertions.assertEquals("TestStreet 1", streetInfo.getName());
+        Assertions.assertEquals("010216", streetInfo.getId());
+        Assertions.assertEquals("callePosho", streetInfo.getRepresentative().getName());
+        Assertions.assertEquals("162001", streetInfo.getRepresentative().getId());
+        Assertions.assertEquals(3, streetInfo.getHouses().size());
+
     }
 
 }
